@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShopMind — AI Shopping Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #0e0e0e;
+  --ink-2: #3a3a3a;
+  --ink-3: #7a7a7a;
+  --ink-4: #b0b0b0;
+  --paper: #faf8f5;
+  --paper-2: #f0ede8;
+  --paper-3: #e8e3dc;
+  --accent: #c8502a;
+  --accent-2: #e8723f;
+  --accent-pale: #fdf0ea;
+  --teal: #1a6b5a;
+  --teal-pale: #e8f5f2;
+  --gold: #c09a3a;
+  --gold-pale: #fdf7e8;
+  --border: rgba(14,14,14,0.1);
+  --border-strong: rgba(14,14,14,0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --r: 12px;
+  --r-sm: 8px;
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.logo-mark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+
+.logo-mark span { color: var(--accent); }
+
+.logo-badge {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--paper-3);
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-left: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.store-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 8px;
+  background: var(--paper-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.store-pill:hover { background: var(--paper-3); }
+
+.store-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink-2);
+  font-size: 15px;
+}
+
+.btn-icon:hover { background: var(--paper-2); }
+
+/* ── Main Layout ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--paper);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.tool-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-bottom: 2px;
+}
+
+.tool-chip:hover { background: var(--paper-2); }
+.tool-chip.active { background: var(--accent-pale); }
+
+.tool-chip-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.tool-chip-icon.search { background: var(--teal-pale); color: var(--teal); }
+.tool-chip-icon.cart   { background: var(--accent-pale); color: var(--accent); }
+.tool-chip-icon.policy { background: var(--gold-pale); color: var(--gold); }
+.tool-chip-icon.order  { background: #ede8f5; color: #6b46c1; }
+
+.tool-chip-text { font-size: 12.5px; font-weight: 500; color: var(--ink-2); }
+.tool-chip-sub  { font-size: 11px; color: var(--ink-4); }
+
+.cart-summary {
+  background: var(--paper-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  margin-top: 4px;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cart-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.cart-count {
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.cart-thumb {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  background: var(--paper-3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.cart-item-name {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.cart-item-price {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-strong);
+}
+
+.cart-total-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.cart-total-amount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+}
+
+.checkout-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.checkout-btn:hover { background: var(--accent-2); }
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+}
+
+.suggestion-item:hover {
+  background: var(--paper-2);
+  border-color: var(--border);
+}
+
+.suggestion-item:active {
+  background: var(--accent-pale);
+  border-color: var(--accent);
+}
+
+.suggestion-q {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.suggestion-arrow {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 1px;
+}
+
+/* ── Chat Area ── */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.messages::-webkit-scrollbar { width: 5px; }
+.messages::-webkit-scrollbar-track { background: transparent; }
+.messages::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* Welcome state */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  gap: 32px;
+}
+
+.welcome-icon {
+  width: 64px; height: 64px;
+  background: var(--accent-pale);
+  border: 1px solid rgba(200,80,42,0.2);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+}
+
+.welcome h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.welcome p {
+  font-size: 14px;
+  color: var(--ink-3);
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+.starter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.starter-card {
+  background: var(--paper);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.starter-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-pale);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.starter-card:hover .starter-icon { background: var(--accent); color: #fff; }
+
+.starter-icon {
+  font-size: 16px;
+  width: 32px; height: 32px;
+  background: var(--paper-2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+}
+
+.starter-text {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  line-height: 1.35;
+}
+
+/* Message bubbles */
+.msg {
+  display: flex;
+  gap: 12px;
+  max-width: 720px;
+  animation: msgIn 0.25s ease forwards;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.avatar.ai {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.avatar.user {
+  background: var(--paper-3);
+  color: var(--ink-2);
+}
+
+.bubble {
+  max-width: calc(100% - 44px);
+  padding: 12px 16px;
+  border-radius: var(--r);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.msg.user .bubble {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--r) var(--r) 4px var(--r);
+}
+
+.msg.ai .bubble {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r) var(--r) var(--r) 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.bubble p { margin: 0 0 8px; }
+.bubble p:last-child { margin-bottom: 0; }
+
+.bubble strong { font-weight: 500; }
+
+/* Tool call indicator */
+.tool-call {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--paper-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  align-self: flex-start;
+  margin-left: 44px;
+  font-family: 'DM Mono', monospace;
+}
+
+.tool-call-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* Product cards inside chat */
+.product-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.product-card {
+  background: var(--paper-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.product-img {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  background: var(--paper-3);
+}
+
+.product-info {
+  padding: 10px 12px;
+}
+
+.product-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.product-price {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 8px;
+}
+
+.product-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--teal-pale);
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.add-btn:hover { background: var(--accent); }
+
+/* Typing indicator */
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  width: fit-content;
+}
+
+.typing span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  animation: typingDot 1.2s ease infinite;
+}
+
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingDot {
+  0%,60%,100% { transform: translateY(0); background: var(--ink-4); }
+  30%          { transform: translateY(-5px); background: var(--ink-2); }
+}
+
+/* MCP status badge */
+.mcp-event {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  background: var(--teal-pale);
+  border: 1px solid rgba(26,107,90,0.2);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--teal);
+  margin-left: 44px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Checkout confirmation */
+.checkout-card {
+  background: var(--gold-pale);
+  border: 1px solid rgba(192,154,58,0.25);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.checkout-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkout-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.checkout-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.checkout-row.total {
+  font-weight: 500;
+  color: var(--ink);
+  padding-top: 8px;
+  border-top: 1px solid rgba(192,154,58,0.3);
+  font-size: 13px;
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+
+.pay-btn:hover { background: #b08930; }
+
+/* ── Input Area ── */
+.input-area {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 16px;
+  padding: 8px 8px 8px 16px;
+  transition: border-color 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+
+.input-wrap:focus-within {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-md);
+}
+
+#chat-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  resize: none;
+  max-height: 120px;
+  min-height: 24px;
+  line-height: 1.5;
+  padding: 3px 0;
+}
+
+#chat-input::placeholder { color: var(--ink-4); }
+
+.send-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--ink);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.send-btn:hover { background: var(--accent); }
+.send-btn:disabled { background: var(--paper-3); color: var(--ink-4); cursor: not-allowed; }
+
+.input-hint {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.hint-chip {
+  font-size: 11px;
+  color: var(--ink-4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Config Panel ── */
+.config-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 360px;
+  height: 100vh;
+  background: var(--paper);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  display: flex;
+  flex-direction: column;
+}
+
+.config-panel.open { transform: translateX(0); }
+
+.config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.config-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.config-close {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-size: 15px;
+}
+
+.config-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.config-section-title {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.config-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.config-sublabel {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: -4px;
+}
+
+.config-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.12s;
+}
+
+.config-input:focus { border-color: var(--ink); }
+
+.config-save-btn {
+  padding: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.config-save-btn:hover { background: var(--accent); }
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--paper-2);
+}
+
+.status-icon { font-size: 14px; }
+.status-text { font-size: 12px; color: var(--ink-2); flex: 1; }
+.status-badge {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.status-badge.ok { background: var(--teal-pale); color: var(--teal); }
+.status-badge.warn { background: var(--gold-pale); color: var(--gold); }
+.status-badge.err { background: var(--accent-pale); color: var(--accent); }
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 99;
+  display: none;
+  cursor: pointer;
+}
+.overlay.open { display: block; }
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .config-panel { width: 100vw; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <span class="logo-mark">Shop<span>Mind</span></span>
+    <span class="logo-badge">MCP</span>
+  </div>
+  <div class="header-actions">
+    <div class="store-pill" onclick="openConfig()">
+      <span class="store-dot"></span>
+      <span id="store-domain-label">demo.myshopify.com</span>
+    </div>
+    <button class="btn-icon" title="Settings" onclick="openConfig()">⚙</button>
+    <button class="btn-icon" title="New chat" onclick="newChat()">✦</button>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <p class="sidebar-label">MCP Tools</p>
+      <div class="tool-chip active">
+        <div class="tool-chip-icon search">🔍</div>
+        <div><p class="tool-chip-text">search_catalog</p><p class="tool-chip-sub">Product search</p></div>
+      </div>
+      <div class="tool-chip">
+        <div class="tool-chip-icon cart">🛒</div>
+        <div><p class="tool-chip-text">update_cart</p><p class="tool-chip-sub">Add / remove items</p></div>
+      </div>
+      <div class="tool-chip">
+        <div class="tool-chip-icon policy">📋</div>
+        <div><p class="tool-chip-text">search_policies</p><p class="tool-chip-sub">FAQs & policies</p></div>
+      </div>
+      <div class="tool-chip">
+        <div class="tool-chip-icon order">📦</div>
+        <div><p class="tool-chip-text">get_cart</p><p class="tool-chip-sub">View cart & checkout</p></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-label">Cart</p>
+      <div class="cart-summary" id="cart-summary">
+        <div class="cart-header">
+          <span class="cart-title">Shopping cart</span>
+          <span class="cart-count" id="cart-count">0 items</span>
+        </div>
+        <div id="cart-items"></div>
+        <div id="cart-footer" style="display:none">
+          <div class="cart-total">
+            <span class="cart-total-label">Total</span>
+            <span class="cart-total-amount" id="cart-total">$0.00</span>
+          </div>
+          <button class="checkout-btn" onclick="triggerCheckout()">Proceed to checkout →</button>
+        </div>
+        <p id="cart-empty" style="font-size:11.5px;color:var(--ink-4);text-align:center;padding:8px 0">Your cart is empty</p>
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <p class="sidebar-label">Try asking</p>
+      <div id="suggestions"></div>
+    </div>
+  </aside>
+
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <!-- Welcome state shown until first message -->
+      <div class="welcome" id="welcome-state">
+        <div class="welcome-icon">✦</div>
+        <div>
+          <h2>Your AI shopping<br/><em>assistant</em> is ready</h2>
+        </div>
+        <p>Powered by Shopify Storefront MCP — search products, manage your cart, and get answers in natural language.</p>
+        <div class="starter-grid">
+          <div class="starter-card" onclick="sendStarter('Show me your best-selling products')">
+            <div class="starter-icon">⭐</div>
+            <p class="starter-text">Show best sellers</p>
+          </div>
+          <div class="starter-card" onclick="sendStarter('What\'s your return policy?')">
+            <div class="starter-icon">📋</div>
+            <p class="starter-text">Return policy</p>
+          </div>
+          <div class="starter-card" onclick="sendStarter('I\'m looking for a gift under $50')">
+            <div class="starter-icon">🎁</div>
+            <p class="starter-text">Gift ideas under $50</p>
+          </div>
+          <div class="starter-card" onclick="sendStarter('What\'s in my cart?')">
+            <div class="starter-icon">🛒</div>
+            <p class="starter-text">View my cart</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="chat-input" rows="1" placeholder="Ask anything about our products…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">→</button>
+      </div>
+      <div class="input-hint">
+        <span class="hint-chip">⏎ Send</span>
+        <span class="hint-chip">⇧⏎ New line</span>
+        <span class="hint-chip">Powered by Shopify MCP</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Config Panel -->
+<div class="overlay" id="overlay" onclick="closeConfig()"></div>
+<div class="config-panel" id="config-panel">
+  <div class="config-header">
+    <span class="config-title">Configuration</span>
+    <button class="config-close" onclick="closeConfig()">✕</button>
+  </div>
+  <div class="config-body">
+    <div>
+      <p class="config-section-title">Shopify Store</p>
+      <div class="config-field">
+        <label class="config-label">Store Domain</label>
+        <p class="config-sublabel">Your .myshopify.com domain</p>
+        <input class="config-input" id="cfg-store" type="text" placeholder="your-store.myshopify.com" value="demo.myshopify.com"/>
+      </div>
+    </div>
+    <div>
+      <p class="config-section-title">API Keys</p>
+      <div class="config-field">
+        <label class="config-label">OpenAI API Key</label>
+        <input class="config-input" id="cfg-openai" type="password" placeholder="sk-..."/>
+      </div>
+      <div class="config-field" style="margin-top:12px">
+        <label class="config-label">Stripe Secret Key</label>
+        <input class="config-input" id="cfg-stripe" type="password" placeholder="sk_live_..."/>
+      </div>
+    </div>
+    <div>
+      <p class="config-section-title">Connection Status</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="status-row">
+          <span class="status-icon">🟢</span>
+          <span class="status-text">Shopify Storefront MCP</span>
+          <span class="status-badge ok" id="status-shopify">Live</span>
+        </div>
+        <div class="status-row">
+          <span class="status-icon">🔵</span>
+          <span class="status-text">AI Agent (Claude/OpenAI)</span>
+          <span class="status-badge warn" id="status-ai">Config needed</span>
+        </div>
+        <div class="status-row">
+          <span class="status-icon">💳</span>
+          <span class="status-text">Stripe Payments</span>
+          <span class="status-badge warn" id="status-stripe">Config needed</span>
+        </div>
+      </div>
+    </div>
+    <button class="config-save-btn" onclick="saveConfig()">Save configuration</button>
+    <div>
+      <p class="config-section-title">MCP Endpoints</p>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-3);line-height:1.8;background:var(--paper-2);padding:12px;border-radius:8px;border:1px solid var(--border)">
+        <p>GET  /{shop}/api/mcp</p>
+        <p>POST /{shop}/api/ucp/mcp</p>
+        <p>POST /{shop}/api/mcp</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+const state = {
+  messages: [],
+  cart: [],
+  cartId: null,
+  config: {
+    store: 'demo.myshopify.com',
+    openaiKey: '',
+    stripeKey: ''
+  },
+  loading: false,
+  sessionId: 'sess_' + Math.random().toString(36).slice(2)
+};
+
+// Mock product catalog
+const PRODUCTS = [
+  { id: 'gid://shopify/Product/1', name: 'Ceramic Pour-Over Set', price: 48.00, emoji: '☕', badge: 'bestseller', stock: true },
+  { id: 'gid://shopify/Product/2', name: 'Linen Tote Bag', price: 34.00, emoji: '👜', badge: 'new', stock: true },
+  { id: 'gid://shopify/Product/3', name: 'Beeswax Candle Trio', price: 29.00, emoji: '🕯️', badge: 'sale', stock: true },
+  { id: 'gid://shopify/Product/4', name: 'Bamboo Notebook', price: 22.00, emoji: '📒', badge: 'eco', stock: true },
+  { id: 'gid://shopify/Product/5', name: 'Artisan Soap Set', price: 38.00, emoji: '🧼', badge: 'gift', stock: true },
+  { id: 'gid://shopify/Product/6', name: 'Wildflower Honey', price: 18.00, emoji: '🍯', badge: 'local', stock: false },
+];
+
+const POLICIES = {
+  return: "We offer a 30-day return policy on all items. Products must be unused and in original packaging. Free return shipping on orders over $50.",
+  shipping: "Standard shipping (3-5 days) is free on orders over $35. Express shipping (1-2 days) is $12. We ship internationally to 40+ countries.",
+  payment: "We accept all major credit cards, PayPal, Apple Pay, and Google Pay. All transactions are secured with 256-bit SSL encryption.",
+  warranty: "All handcrafted items come with a 1-year craftsmanship warranty. Contact us within 12 months for replacements on defective items."
+};
+
+const SUGGESTIONS = [
+  "Show me gift ideas under $40",
+  "What are your bestselling products?",
+  "Do you offer free shipping?",
+  "I want something for a coffee lover",
+  "Add the ceramic set to my cart",
+  "What's your return policy?",
+  "Show eco-friendly options",
+  "What's in my cart?",
+];
+
+// ── Init ──
+function init() {
+  renderSuggestions();
+  loadConfig();
+}
+
+function loadConfig() {
+  const saved = localStorage.getItem('shopmind_config');
+  if (saved) {
+    Object.assign(state.config, JSON.parse(saved));
+    document.getElementById('cfg-store').value = state.config.store;
+    document.getElementById('cfg-openai').value = state.config.openaiKey;
+    document.getElementById('cfg-stripe').value = state.config.stripeKey;
+    document.getElementById('store-domain-label').textContent = state.config.store;
+    updateStatuses();
+  }
+}
+
+function renderSuggestions() {
+  const el = document.getElementById('suggestions');
+  el.innerHTML = SUGGESTIONS.map(s => `
+    <div class="suggestion-item" onclick="sendStarter('${s.replace(/'/g,"\\'")}')">
+      <span class="suggestion-q">${s}</span>
+      <span class="suggestion-arrow">→</span>
+    </div>
+  `).join('');
+}
+
+// ── Config ──
+function openConfig() {
+  document.getElementById('config-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeConfig() {
+  document.getElementById('config-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function saveConfig() {
+  state.config.store = document.getElementById('cfg-store').value.trim();
+  state.config.openaiKey = document.getElementById('cfg-openai').value.trim();
+  state.config.stripeKey = document.getElementById('cfg-stripe').value.trim();
+  localStorage.setItem('shopmind_config', JSON.stringify(state.config));
+  document.getElementById('store-domain-label').textContent = state.config.store || 'demo.myshopify.com';
+  updateStatuses();
+  closeConfig();
+  addSystemNote('Configuration saved. Connected to ' + (state.config.store || 'demo store'));
+}
+
+function updateStatuses() {
+  const aiEl = document.getElementById('status-ai');
+  const stripeEl = document.getElementById('status-stripe');
+  if (state.config.openaiKey) {
+    aiEl.textContent = 'Connected';
+    aiEl.className = 'status-badge ok';
+  } else {
+    aiEl.textContent = 'Config needed';
+    aiEl.className = 'status-badge warn';
+  }
+  if (state.config.stripeKey) {
+    stripeEl.textContent = 'Connected';
+    stripeEl.className = 'status-badge ok';
+  } else {
+    stripeEl.textContent = 'Config needed';
+    stripeEl.className = 'status-badge warn';
+  }
+}
+
+function addSystemNote(text) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'mcp-event';
+  el.style.alignSelf = 'center';
+  el.innerHTML = `✓ ${text}`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ── Chat ──
+function sendStarter(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function newChat() {
+  state.messages = [];
+  state.cart = [];
+  state.cartId = null;
+  document.getElementById('messages').innerHTML = `
+    <div class="welcome" id="welcome-state">
+      <div class="welcome-icon">✦</div>
+      <div><h2>Your AI shopping<br/><em>assistant</em> is ready</h2></div>
+      <p>Powered by Shopify Storefront MCP — search products, manage your cart, and get answers in natural language.</p>
+      <div class="starter-grid">
+        <div class="starter-card" onclick="sendStarter('Show me your best-selling products')">
+          <div class="starter-icon">⭐</div><p class="starter-text">Show best sellers</p>
+        </div>
+        <div class="starter-card" onclick="sendStarter('What\\'s your return policy?')">
+          <div class="starter-icon">📋</div><p class="starter-text">Return policy</p>
+        </div>
+        <div class="starter-card" onclick="sendStarter('I\\'m looking for a gift under $50')">
+          <div class="starter-icon">🎁</div><p class="starter-text">Gift ideas under $50</p>
+        </div>
+        <div class="starter-card" onclick="sendStarter('What\\'s in my cart?')">
+          <div class="starter-icon">🛒</div><p class="starter-text">View my cart</p>
+        </div>
+      </div>
+    </div>`;
+  renderCart();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || state.loading) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  hideWelcome();
+
+  appendMessage('user', text);
+  state.messages.push({ role: 'user', content: text });
+
+  setLoading(true);
+  await processIntent(text);
+  setLoading(false);
+}
+
+function hideWelcome() {
+  const w = document.getElementById('welcome-state');
+  if (w) w.remove();
+}
+
+function setLoading(v) {
+  state.loading = v;
+  document.getElementById('send-btn').disabled = v;
+}
+
+// ── Intent Processing ──
+async function processIntent(text) {
+  const lower = text.toLowerCase();
+
+  // Determine intent
+  const isProductSearch = /show|find|search|look|browse|recommend|suggest|gift|coffee|eco|linen|candle|soap|honey|notebook|bag|set/i.test(lower);
+  const isCartAction = /add|put|cart|buy|order|purchase/i.test(lower);
+  const isViewCart  = /cart|basket|what.*(i have|did i|ordered|added)/i.test(lower);
+  const isCheckout  = /checkout|pay|purchase|complete|buy now|confirm/i.test(lower);
+  const isPolicy    = /return|ship|shipping|policy|warranty|payment method|how long|refund/i.test(lower);
+  const isBestSell  = /best.?sell|popular|top|trending|bestsell/i.test(lower);
+
+  if (isCheckout) {
+    await handleCheckout();
+  } else if (isViewCart) {
+    await handleViewCart();
+  } else if (isCartAction) {
+    await handleAddToCart(text);
+  } else if (isPolicy) {
+    await handlePolicyQuery(lower);
+  } else if (isBestSell || isProductSearch) {
+    await handleProductSearch(text);
+  } else {
+    await handleGeneral(text);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── MCP Tool Simulations ──
+async function handleProductSearch(query) {
+  showToolCall('search_catalog');
+  await sleep(900);
+  removeToolCall();
+
+  showMcpEvent('search_catalog → /api/ucp/mcp');
+  await sleep(300);
+
+  const lower = query.toLowerCase();
+  let results = PRODUCTS.filter(p => {
+    if (/gift|gift idea/i.test(lower)) return p.price <= 50 && p.stock;
+    if (/coffee/i.test(lower)) return p.id === 'gid://shopify/Product/1';
+    if (/eco|sustainable|environment/i.test(lower)) return ['gid://shopify/Product/2','gid://shopify/Product/4'].includes(p.id);
+    if (/candle/i.test(lower)) return p.id === 'gid://shopify/Product/3';
+    if (/soap/i.test(lower)) return p.id === 'gid://shopify/Product/5';
+    return p.stock;
+  });
+
+  if (!results.length) results = PRODUCTS.filter(p => p.stock).slice(0, 4);
+
+  const count = results.length;
+  const intro = count === 1
+    ? `I found the perfect match for you:`
+    : `Here are ${count} products that match your search:`;
+
+  appendMessage('ai', intro, results);
+  state.messages.push({ role: 'assistant', content: `${intro} [${results.map(p => p.name).join(', ')}]` });
+}
+
+async function handleAddToCart(query) {
+  // Find product from query
+  const lower = query.toLowerCase();
+  let product = PRODUCTS.find(p =>
+    p.name.toLowerCase().split(' ').some(w => lower.includes(w)) && p.stock
+  );
+
+  if (!product) {
+    showToolCall('search_catalog');
+    await sleep(700);
+    removeToolCall();
+    product = PRODUCTS.find(p => p.stock);
+  }
+
+  showToolCall('update_cart');
+  await sleep(1000);
+  removeToolCall();
+
+  showMcpEvent('update_cart → /api/mcp');
+  await sleep(200);
+
+  // Add to cart
+  const existing = state.cart.find(i => i.id === product.id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    state.cart.push({ ...product, qty: 1 });
+  }
+  state.cartId = 'gid://shopify/Cart/cart_' + state.sessionId;
+  renderCart();
+
+  const total = cartTotal();
+  const msg = `✓ Added **${product.name}** ($${product.price.toFixed(2)}) to your cart.\n\nYou now have ${state.cart.length} item${state.cart.length !== 1 ? 's' : ''} in your cart totalling **$${total.toFixed(2)}**. Ready to checkout? Just say "checkout" or keep browsing!`;
+  appendMessage('ai', msg);
+  state.messages.push({ role: 'assistant', content: msg });
+}
+
+async function handleViewCart() {
+  showToolCall('get_cart');
+  await sleep(800);
+  removeToolCall();
+
+  showMcpEvent('get_cart → /api/mcp');
+  await sleep(200);
+
+  if (!state.cart.length) {
+    const msg = "Your cart is currently empty. Want me to show you some products? I can help you find something you'll love! 🛍️";
+    appendMessage('ai', msg);
+    return;
+  }
+
+  const lines = state.cart.map(i => `• ${i.emoji} ${i.name} × ${i.qty} — $${(i.price * i.qty).toFixed(2)}`).join('\n');
+  const total = cartTotal();
+  const msg = `Here's what's in your cart:\n\n${lines}\n\n**Total: $${total.toFixed(2)}**\n\nShipping is free on orders over $35. Ready to checkout?`;
+  appendMessage('ai', msg);
+  state.messages.push({ role: 'assistant', content: msg });
+}
+
+async function handleCheckout() {
+  if (!state.cart.length) {
+    const msg = "Your cart is empty! Let me help you find some products first. What are you looking for?";
+    appendMessage('ai', msg);
+    return;
+  }
+
+  showToolCall('get_cart → checkout_url');
+  await sleep(800);
+  removeToolCall();
+
+  if (state.config.stripeKey) {
+    showToolCall('stripe.PaymentLink.create()');
+    await sleep(600);
+    removeToolCall();
+  }
+
+  showMcpEvent('checkout session created');
+  await sleep(200);
+
+  appendCheckoutCard();
+  state.messages.push({ role: 'assistant', content: 'Checkout ready — payment link generated.' });
+}
+
+async function handlePolicyQuery(lower) {
+  showToolCall('search_shop_policies_and_faqs');
+  await sleep(800);
+  removeToolCall();
+
+  showMcpEvent('search_shop_policies_and_faqs → /api/mcp');
+  await sleep(200);
+
+  let answer = '';
+  if (/return|refund/.test(lower)) answer = POLICIES.return;
+  else if (/ship/.test(lower)) answer = POLICIES.shipping;
+  else if (/payment|pay|method/.test(lower)) answer = POLICIES.payment;
+  else if (/warrant/.test(lower)) answer = POLICIES.warranty;
+  else answer = `${POLICIES.return}\n\n${POLICIES.shipping}`;
+
+  appendMessage('ai', answer);
+  state.messages.push({ role: 'assistant', content: answer });
+}
+
+async function handleGeneral(text) {
+  // Use Anthropic API if available (in demo, use smart fallback)
+  showTyping();
+  await sleep(1200);
+  removeTyping();
+
+  const responses = [
+    "I'm here to help you shop! I can search our product catalog, tell you about policies, manage your cart, or guide you to checkout. What would you like to do?",
+    "Great question! Our store carries handcrafted, sustainable products. Want me to show you what's available? I can filter by price, category, or gift ideas.",
+    "I can help with that! Would you like to browse our catalog, or do you have a specific product or budget in mind?",
+  ];
+  const msg = responses[Math.floor(Math.random() * responses.length)];
+  appendMessage('ai', msg);
+  state.messages.push({ role: 'assistant', content: msg });
+}
+
+function triggerCheckout() {
+  hideWelcome();
+  sendStarter("I want to checkout");
+}
+
+// ── DOM Helpers ──
+function appendMessage(role, text, products) {
+  removeTyping();
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const avatar = `<div class="avatar ${role}">${role === 'ai' ? 'S' : '👤'}</div>`;
+  let content = `<div class="bubble">${formatText(text)}`;
+
+  if (products && products.length) {
+    content += `<div class="product-cards">`;
+    products.forEach(p => {
+      const badgeColor = p.badge === 'sale' ? 'var(--accent)' : p.badge === 'new' ? 'var(--teal)' : 'var(--gold)';
+      content += `
+        <div class="product-card" onclick="askAboutProduct('${p.name}')">
+          <div class="product-img">${p.emoji}</div>
+          <div class="product-info">
+            <p class="product-name">${p.name}</p>
+            <p class="product-price">$${p.price.toFixed(2)}</p>
+            <span class="product-badge" style="background:${badgeColor}20;color:${badgeColor}">${p.badge}</span>
+            <button class="add-btn" onclick="event.stopPropagation();addProductToCart('${p.id}')">Add to cart</button>
+          </div>
+        </div>`;
+    });
+    content += `</div>`;
+  }
+
+  content += `</div>`;
+  div.innerHTML = role === 'ai' ? avatar + content : content + avatar;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendCheckoutCard() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+
+  const total = cartTotal();
+  const shipping = total >= 35 ? 'Free' : '$5.99';
+  const finalTotal = total >= 35 ? total : total + 5.99;
+
+  const itemRows = state.cart.map(i =>
+    `<div class="checkout-row"><span>${i.emoji} ${i.name} × ${i.qty}</span><span>$${(i.price * i.qty).toFixed(2)}</span></div>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="avatar ai">S</div>
+    <div class="bubble">
+      <p>Your order is ready! Review below and confirm to proceed to secure checkout.</p>
+      <div class="checkout-card">
+        <div class="checkout-card-title">🛍️ Order summary</div>
+        <div class="checkout-items">
+          ${itemRows}
+          <div class="checkout-row"><span>Shipping</span><span>${shipping}</span></div>
+          <div class="checkout-row total"><span>Total</span><span>$${finalTotal.toFixed(2)}</span></div>
+        </div>
+        <button class="pay-btn" onclick="confirmPayment()">Pay $${finalTotal.toFixed(2)} — Powered by Stripe →</button>
+      </div>
+    </div>`;
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function confirmPayment() {
+  const total = cartTotal() >= 35 ? cartTotal() : cartTotal() + 5.99;
+  // In production: redirect to Stripe Payment Link URL
+  addSystemNote(`Payment link created — $${total.toFixed(2)}. Redirecting to Stripe...`);
+  setTimeout(() => {
+    state.cart = [];
+    renderCart();
+    const msg = "🎉 Order confirmed! You'll receive a confirmation email shortly. Thank you for shopping with us! Is there anything else I can help with?";
+    hideWelcome();
+    appendMessage('ai', msg);
+  }, 1500);
+}
+
+function askAboutProduct(name) {
+  sendStarter(`Tell me more about the ${name}`);
+}
+
+function addProductToCart(productId) {
+  const product = PRODUCTS.find(p => p.id === productId);
+  if (!product || !product.stock) return;
+  const existing = state.cart.find(i => i.id === product.id);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    state.cart.push({ ...product, qty: 1 });
+  }
+  state.cartId = 'gid://shopify/Cart/cart_' + state.sessionId;
+  renderCart();
+  addSystemNote(`${product.emoji} ${product.name} added to cart`);
+}
+
+function showToolCall(name) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'tool-call';
+  div.id = 'tool-call-indicator';
+  div.innerHTML = `<span class="tool-call-dot"></span> Calling ${name}...`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeToolCall() {
+  const el = document.getElementById('tool-call-indicator');
+  if (el) el.remove();
+}
+
+function showMcpEvent(text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'mcp-event';
+  div.innerHTML = `✓ ${text}`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => div.remove(), 4000);
+}
+
+function showTyping() {
+  removeTyping();
+  const msgs = document.getElementById('messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ai';
+  wrap.id = 'typing-indicator';
+  wrap.innerHTML = `<div class="avatar ai">S</div><div class="typing"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
+}
+
+// ── Cart ──
+function cartTotal() {
+  return state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+}
+
+function renderCart() {
+  const countEl = document.getElementById('cart-count');
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+  const emptyEl = document.getElementById('cart-empty');
+  const totalEl = document.getElementById('cart-total');
+
+  const count = state.cart.reduce((s, i) => s + i.qty, 0);
+  countEl.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+
+  if (!state.cart.length) {
+    itemsEl.innerHTML = '';
+    footerEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  footerEl.style.display = 'block';
+  totalEl.textContent = `$${cartTotal().toFixed(2)}`;
+
+  itemsEl.innerHTML = state.cart.map(i => `
+    <div class="cart-item">
+      <div class="cart-thumb">${i.emoji}</div>
+      <div class="cart-item-name">${i.name} × ${i.qty}</div>
+      <div class="cart-item-price">$${(i.price * i.qty).toFixed(2)}</div>
+    </div>`).join('');
+}
+
+init();
+</script>
+</body>
+</html>
